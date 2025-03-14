@@ -34,7 +34,7 @@ bot.on('message', async (msg) => {
   console.log('bot.on message');
   const chatId = msg.chat.id;
   console.log(msg.text);
-  const {phone, comment} = parseMessage(msg.text);
+  const { phone, comment } = parseMessage(msg.text);
   console.log(`phone: ${phone}, comment: ${comment}`);
   await getAnketaForPhone(phone, chatId);
 })
@@ -89,7 +89,19 @@ async function getAnketaForPhone(phone, chatId) {
         // }
 
         let captionText = `Имя: ${name}\nТелефон: ${phone}\nДата рождения: ${birthDate}\n${tags}\n\nБилеты:\n${ticketsText}`;
-        const fileId = await downloadAndSendPhoto(chatId, photo, captionText);
+        const { fileId, messageId } = await sendPhotoCaptionTextKeyboard(chatId, photo, captionText);
+
+        let inline_keyboard = [
+          [
+            { text: "ТЗ 🏋🏼‍♂️", callback_data: ['vc', 'tz', messageId, phone, name].join('@') },
+            { text: "ГП 🤸🏻‍♀️", callback_data: ['vc', 'gp', messageId, phone, name].join('@') },
+            { text: "Аква 🏊", callback_data: ['vc', 'aq', messageId, phone, name].join('@') }
+          ],
+          [
+            { text: "✖️ Закрыть", callback_data: ['vc', 'cancel', messageId, phone, name].join('@') }
+          ]
+        ];
+        updateInlineKeyboard(chatId, messageId, inline_keyboard);
 
         if (fileId) {
           console.log(`Photo file_id: ${fileId}`);
@@ -107,7 +119,57 @@ async function getAnketaForPhone(phone, chatId) {
 
 }
 
-async function downloadAndSendPhoto(chatId, photoUrl, captionText) {
+
+
+
+bot.on('callback_query', async (query) => {
+  const chatId = query.message.chat.id;
+  const messageId = query.message.message_id;
+  const keyboard = query.message.reply_markup?.inline_keyboard;
+
+  const [queryTheme, queryValue, queryId, clientPhone, clientName] = query.data.split('@');
+
+  console.log(queryTheme, queryValue, queryId, clientPhone, clientName);
+
+  if (queryTheme === 'vc') {
+    if (queryValue === 'cancel') {
+      await deleteMessage(chatId, messageId);
+      bot.sendMessage(chatId, `Закрыта анкета клиента ${clientName} ${clientPhone}`);
+    } else {
+      let newText;
+      if (queryValue === 'tz') newText = '✅ ТЗ отправлено ';
+      if (queryValue === 'gp') newText = '✅ ГП отправлено ';
+      if (queryValue === 'aq') newText = '✅ Аква отправлено ';
+
+      if (newText) {
+        await updateButtonText(chatId, messageId, keyboard, query.data, newText);
+        bot.sendMessage(chatId, `Отправляю заявку клиента ${clientName} ${clientPhone} по ${newText.replace('✅ ', '')}`);
+      }
+    }
+  }
+});
+
+// Функция обновления текста кнопки
+async function updateButtonText(chatId, messageId, inlineKeyboard, targetCallbackData, newText) {
+  try {
+    if (!inlineKeyboard) return;
+
+    // Обновляем текст нужной кнопки
+    let updatedKeyboard = inlineKeyboard.map(row =>
+      row.map(button =>
+        button.callback_data === targetCallbackData ? { ...button, text: newText } : button
+      )
+    );
+
+    // Редактируем клавиатуру
+    await bot.editMessageReplyMarkup({ inline_keyboard: updatedKeyboard }, { chat_id: chatId, message_id: messageId });
+
+  } catch (error) {
+    console.error('Ошибка при изменении кнопки:', error);
+  }
+}
+
+async function sendPhotoCaptionTextKeyboard(chatId, photoUrl, captionText) {
   try {
     const headers = {
       'Authorization': process.env.AUTHORIZATION,
@@ -126,17 +188,39 @@ async function downloadAndSendPhoto(chatId, photoUrl, captionText) {
       parse_mode: 'Markdown'
     });
 
+    const messageId = sentMessage.message_id;
     const fileId = sentMessage.photo[sentMessage.photo.length - 1].file_id;
 
     fs.unlinkSync(filePath);
 
-    return fileId;
+    return { fileId, messageId };
   } catch (error) {
     console.error('Ошибка загрузки фото:', error);
     bot.sendMessage(chatId, 'Не удалось загрузить фото.');
     return null;
   }
 }
+
+// Вспомогательные фукнции по работе с уже созданными сообщениями по chatId и messageId
+async function deleteMessage(chatId, messageId) {
+  try {
+    await bot.deleteMessage(chatId, messageId);
+  } catch (error) {
+    console.error("Ошибка удаления сообщения:", error);
+  }
+}
+// Зная обновляет клавиатуру под сообщением
+async function updateInlineKeyboard(chatId, messageId, newKeyboard) {
+  try {
+    await bot.editMessageReplyMarkup(
+      { inline_keyboard: newKeyboard },
+      { chat_id: chatId, message_id: messageId }
+    );
+  } catch (error) {
+    console.error("Ошибка обновления клавиатуры:", error);
+  }
+}
+
 
 function translateStatus(status) {
   const translations = {
@@ -229,23 +313,23 @@ async function getClientResponse(passToken) {
 // переводит в phone: 79785667199, comment: "хочет на ВПТ"
 function parseMessage(message) {
   let match = message.match(/([+8]?\d?[\s\-\(\)]*\d{3}[\s\-\(\)]*\d{3}[\s\-]*\d{2}[\s\-]*\d{2})([\s\S]*)/);
-  
+
   if (!match) return null;
-  
+
   let rawPhone = match[1];
   let comment = match[2].trim().replace(/\s+/g, " "); // Убираем лишние пробелы и переносы строк
-  
+
   // Очищаем номер от лишних символов
   let phone = rawPhone.replace(/\D/g, "");
-  
+
   // Приводим к стандартному формату (добавляем 7, если 10 цифр, но не трогаем если уже 11 и начинается на 7)
   if (phone.length === 10) {
-      phone = "7" + phone;
+    phone = "7" + phone;
   } else if (phone.length === 11 && phone.startsWith("8")) {
-      phone = "7" + phone.slice(1);
+    phone = "7" + phone.slice(1);
   } else if (phone.length === 11 && phone.startsWith("+7")) {
-      phone = "7" + phone.slice(2);
+    phone = "7" + phone.slice(2);
   }
-  
+
   return { phone: phone, comment: comment };
 }
