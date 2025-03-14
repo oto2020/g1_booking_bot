@@ -72,13 +72,13 @@ async function getAnketaForPhone(phone, chatId) {
         const photo = client.photo;
         const tags = client.tags.map(tag => `#${tag.title}`).join('\n');
 
-        let tag = "ХОЧЕТ НА ВПТ";
-        try {
-          await addTag(passToken, id, tag);
-          await bot.sendMessage(chatId, `Установлен тег: "${tag}"`);
-        } catch (e) {
-          await bot.sendMessage(chatId, `Не удалось установить тег "${tag}"`);
-        }
+        // let tag = "ХОЧЕТ НА ВПТ";
+        // try {
+        //   await addTag(passToken, id, tag);
+        //   await bot.sendMessage(chatId, `Установлен тег: "${tag}"`);
+        // } catch (e) {
+        //   await bot.sendMessage(chatId, `Не удалось установить тег "${tag}"`);
+        // }
 
         // try {
         //   await deleteTag(passToken, id, tag);
@@ -118,9 +118,6 @@ async function getAnketaForPhone(phone, chatId) {
   }
 
 }
-
-
-
 
 bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
