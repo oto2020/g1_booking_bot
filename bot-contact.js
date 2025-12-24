@@ -808,6 +808,129 @@ bot.onText(/^\/my_purchases$/, async (msg) => {
   }
 });
 
+// Команда "Запланированные тренировки"
+bot.onText(/^\/my_classes$/, async (msg) => {
+  const chatId = msg.chat.id;
+  const existing = store[chatId];
+
+  if (!existing) {
+    await bot.sendMessage(chatId, 'Сначала нажмите /start и поделитесь контактом.');
+    return;
+  }
+
+  if (existing.status === 'logged_out') {
+    await bot.sendMessage(chatId, 'Чтобы войти нажмите /start.');
+    return;
+  }
+
+  try {
+    const passToken = await ensurePassToken(chatId, existing);
+    
+    // Получаем запланированные занятия клиента
+    const appointments = await ApiHelper.getClientAppointments(passToken, {
+      type: 'classes',
+      statuses: ['planned'],
+      requested_offset: 0,
+      page_size: 50,
+    });
+
+    // Фильтруем только запланированные занятия (не отмененные)
+    const now = new Date();
+    const plannedClasses = appointments.filter((apt) => {
+      if (apt.type !== 'classes') return false;
+      if (apt.status !== 'planned') return false;
+      if (apt.arrival_status === 'canceled' || apt.arrival_status === 'cancelled') return false;
+      if (!apt.start_date) return false;
+      // Показываем только будущие занятия
+      const startDate = new Date(apt.start_date);
+      return startDate > now;
+    });
+
+    // Сортируем по дате начала
+    plannedClasses.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+    if (plannedClasses.length === 0) {
+      await bot.sendMessage(chatId, 'У вас нет запланированных тренировок.');
+      return;
+    }
+
+    // Отправляем сообщение о количестве тренировок
+    await bot.sendMessage(
+      chatId,
+      `📅 Запланированные тренировки: ${plannedClasses.length}\n\nОтправляю информацию о каждой тренировке...`
+    );
+
+    // Отправляем каждую тренировку отдельным сообщением с кнопками
+    const wd = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+    
+    for (const apt of plannedClasses) {
+      const d = new Date(apt.start_date);
+      const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      const weekday = wd[d.getDay()] || '';
+      const date = d.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+      });
+      
+      const title = apt.service?.title || 'Занятие';
+      const trainerFull = apt.employee?.name || 'Тренер не указан';
+      const roomTitle = apt.room?.title || 'Зал не указан';
+
+      // Формируем текст сообщения
+      const lines = [
+        `🚴 Тренировка`,
+        ``,
+        `📅 ${weekday}, ${date}`,
+        `🕐 Время: ${time}`,
+        `🎯 Услуга: ${title}`,
+        `👤 Тренер: ${trainerFull}`,
+        `🏠 Зал: ${roomTitle}`,
+      ];
+
+      // Добавляем информацию об оплате, если есть
+      if (apt.payment) {
+        lines.push(`💳 Оплата: ${apt.payment.title || 'Не указано'}`);
+      }
+
+      // Находим конфигурацию направления по названию зала
+      const cfg = classesConfig.find((c) => c.roomTitle === roomTitle);
+      const cfgKey = cfg?.key || 'unknown';
+
+      // Создаем или находим токен для этого занятия
+      const token = ensureAppointmentToken(chatId, cfgKey, {
+        appointment_id: apt.appointment_id,
+        id: apt.appointment_id,
+        start_date: apt.start_date,
+        service: apt.service,
+        employee: apt.employee,
+        room: apt.room,
+        service_title: title,
+        employee_name: trainerFull,
+        club_id: apt.club?.id,
+      });
+
+      // Формируем кнопки
+      const keyboard = {
+        inline_keyboard: [
+          [{ text: '❌ Отменить запись', callback_data: `unbook:${cfgKey}:${token}` }],
+          [{ text: '↩️ Закрыть', callback_data: `close_myclass:${token}` }],
+        ],
+      };
+
+      // Отправляем сообщение
+      await bot.sendMessage(chatId, lines.join('\n'), {
+        reply_markup: keyboard,
+      });
+    }
+  } catch (error) {
+    console.error('Ошибка при получении запланированных тренировок:', error.message);
+    await bot.sendMessage(
+      chatId,
+      'Не удалось получить список запланированных тренировок. Попробуйте позже.'
+    );
+  }
+});
+
 async function handleSelectClassDirection(chatId, key) {
   const cfg = classesConfig.find((c) => c.key === key);
   if (!cfg) {
