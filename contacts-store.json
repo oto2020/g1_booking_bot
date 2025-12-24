@@ -1,0 +1,33 @@
+{
+  "301334882": {
+    "telegram": {
+      "first_name": "Игорь",
+      "last_name": "Конюхов",
+      "phone": "+79785667199",
+      "username": "igo4ek",
+      "user_id": 301334882
+    },
+    "oneC": {
+      "fullName": "Конюхов Игорь",
+      "membership": {
+        "title": "Basic 12 месяцев (От Акционеров)",
+        "expires": "2026-12-06",
+        "status": "active",
+        "ticket_id": "a1b413da-d31f-4f6a-a42e-be1e014abe75",
+        "type": "membership"
+      },
+      "clientId": "bec63f96-0d68-11ec-4286-ac162d836870",
+      "clubId": "49964502-5659-11eb-e291-ac162d836873",
+      "usertoken": "03E35E5B2A7DC5DD2B264AC86A7A51C6"
+    },
+    "saved_at": "2025-12-23T16:18:36.481Z",
+    "status": "active",
+    "lastSelectedClass": {
+      "appointment_id": "79a025aa-5a83-11f0-8cd7-ac162d836870",
+      "service_id": null,
+      "start_date": "2025-12-26 19:00",
+      "service_title": "САЙКЛ PRO ₽",
+      "trainerFull": "Ващенко Кристина"
+    }
+  }
+}

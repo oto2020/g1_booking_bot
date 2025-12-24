@@ -1,0 +1,97 @@
+{
+  "updated_at": "2025-12-24T13:40:02.440Z",
+  "club_id": "49964502-5659-11eb-e291-ac162d836873",
+  "phone": "79785667199",
+  "data": {
+    "saikl": [
+      {
+        "appointment_id": "80f1d1d8-e16a-11ef-973c-ac162d836870",
+        "start_date": "2025-12-24 17:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ PRO ₽",
+        "employee": {
+          "id": "8e4938aa-a222-11ed-99f1-ac162d836870",
+          "name": "Конюхова (Овчаренко) Надежда"
+        },
+        "recorded": true
+      },
+      {
+        "appointment_id": "1011239e-46d0-11f0-8e67-ac162d836870",
+        "start_date": "2025-12-24 19:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ PRO ₽",
+        "employee": {
+          "id": "29229d96-5b11-11ef-8c99-ac162d836870",
+          "name": "Ващенко Кристина"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "a00b4248-99e3-11f0-9727-ac162d836870",
+        "start_date": "2025-12-25 10:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ СТАРТ ₽",
+        "employee": {
+          "id": "30c738dc-72b5-11ec-9688-ac162d836870",
+          "name": "Роменская Виктория"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "62fe6b86-e16b-11ef-973c-ac162d836870",
+        "start_date": "2025-12-25 19:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ PRO ₽",
+        "employee": {
+          "id": "8e4938aa-a222-11ed-99f1-ac162d836870",
+          "name": "Конюхова (Овчаренко) Надежда"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "43155fd0-8334-11f0-9ca8-ac162d836870",
+        "start_date": "2025-12-26 07:30",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ LITE + ABS ₽",
+        "employee": {
+          "id": "adb9b706-4663-11ee-9c74-ac162d836870",
+          "name": "Карасева Мария"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "ea5d0b0c-8434-11f0-97c0-ac162d836870",
+        "start_date": "2025-12-26 15:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ СТАРТ ₽",
+        "employee": {
+          "id": "29229d96-5b11-11ef-8c99-ac162d836870",
+          "name": "Ващенко Кристина"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "121c7108-e16c-11ef-973c-ac162d836870",
+        "start_date": "2025-12-26 17:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ PRO ₽",
+        "employee": {
+          "id": "8e4938aa-a222-11ed-99f1-ac162d836870",
+          "name": "Конюхова (Овчаренко) Надежда"
+        },
+        "recorded": false
+      },
+      {
+        "appointment_id": "79a025aa-5a83-11f0-8cd7-ac162d836870",
+        "start_date": "2025-12-26 19:00",
+        "room_title": "Сайкл студия",
+        "service_title": "САЙКЛ PRO ₽",
+        "employee": {
+          "id": "29229d96-5b11-11ef-8c99-ac162d836870",
+          "name": "Ващенко Кристина"
+        },
+        "recorded": false
+      }
+    ]
+  }
+}

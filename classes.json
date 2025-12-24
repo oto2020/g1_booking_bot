@@ -1,0 +1,18 @@
+[
+  {
+    "key": "saikl",
+    "roomTitle": "Сайкл студия",
+    "catalogTitle": "Сайкл студия",
+    "button": "🚴 Сайкл",
+    "callback": "saikl",
+    "searchText": "САЙКЛ",
+    "emojis": {
+      "available": "🚲",
+      "recorded": "🚴",
+      "canceled": "❌",
+      "default": "✖️",
+      "pending": "🕒"
+    }
+  }
+]
+
